@@ -56,9 +56,14 @@ class Section
 		public name      : string,
 		public backup    : string) { }
 
-	public get fullName () : string
+	public get fullName() : string
 	{
 		return this.hierarchy.concat([ this.name ]).join('/');
+	}
+
+	public get isRecycleBin() : boolean
+	{
+		return this.hierarchy && this.hierarchy[0] == "OneNote_RecycleBin";
 	}
 
 	public async export (destinationRoot : string) : Promise<void>
@@ -119,6 +124,23 @@ function scanBackups(sections : Section[]) : string[]
 			backups.push(section.backup);
 	})
 	return backups;
+}
+
+function checkRecycleBin(sections : Section[]) : boolean
+{
+	return !! sections.find(section =>   section.isRecycleBin);
+}
+
+async function questionRemoveRecycleBin() : Promise<boolean>
+{
+	return await console.questionTillValid(
+		"检测到选定笔记本备的回收站中含有分区，是否忽略这些已删除的分区？(y/n)",
+		(input) => input == 'y' || input == 'n') == 'y';
+}
+
+function removeRecycleBin(sections : Section[]) : Section[]
+{
+	return sections.filter(section => ! section.isRecycleBin)
 }
 
 async function questionBackup(notebook : string, backups : string[]) : Promise<string>
@@ -234,9 +256,12 @@ function writeFinish() : void
 	const allSections = await scanSections(notebook);
 	const backups     =       scanBackups(allSections);
 	const backup      = await questionBackup(notebook, backups);
-	const exportingSections = allSections.filter(section => section.backup === backup);
+	let   exportingSections = allSections.filter(section => section.backup === backup);
 	console.writeLine(console.separator);
 
+	if (checkRecycleBin(exportingSections))
+		if (await questionRemoveRecycleBin())
+			exportingSections = removeRecycleBin(exportingSections);
 	writeSections(exportingSections)
 	console.writeLine(console.separator);
 
