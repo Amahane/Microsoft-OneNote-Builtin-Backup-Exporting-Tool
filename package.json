@@ -1,0 +1,21 @@
+{
+	"private": true,
+	"main": "./build/main.js",
+	"scripts": {
+		"build": "webpack",
+		"start": "node  .",
+		"prestart": "npm run build"
+	},
+	"dependencies": {
+		"chalk": "^2.4.2",
+		"fs-extra": "^8.1.0"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^8.0.0",
+		"@types/node": "^12.7.2",
+		"ts-loader": "^6.0.4",
+		"typescript": "^3.6.2",
+		"webpack": "^4.39.3",
+		"webpack-cli": "^3.3.7"
+	}
+}
