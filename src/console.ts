@@ -3,7 +3,7 @@ import readline         from 'readline';
 
 export interface Tag
 {
-    (message : string) : string;
+	(message : string) : string;
 }
 
 export interface Bullet
@@ -27,9 +27,10 @@ export const separator = '—'.repeat(60);
 
 export const tags =
 {
-    success     : createTag("成功", chalk.green ),
-    userError   : createTag("错误", chalk.yellow),
-    systemError : createTag("错误", chalk.red   ),
+	notice      : createTag("注意", chalk.yellowBright),
+	success     : createTag("成功", chalk.greenBright ),
+	userError   : createTag("错误", chalk.yellowBright),
+	systemError : createTag("错误", chalk.redBright   ),
 }
 
 export const bullets =
@@ -74,8 +75,9 @@ export async function question(
 }
 
 export function writeList(
-	items  : string[],
-	bullet : Bullet = bullets.unordered.default) : void
+	items     : string[],
+	bullet    : Bullet = bullets.unordered.default,
+	itemStyle : Chalk  = chalk) : void
 {
 	items.forEach((value, index) => writeLine(`${ bullet.render(value, index + 1) } ${ value }`));
 }
@@ -99,10 +101,11 @@ export async function writeAndQuestionChoice(
 	intro     : string  ,
 	items     : string[],
 	query     : string  ,
+	itemStyle : Chalk   = chalk,
 	usePrompt : boolean = true) : Promise<string>
 {
 	writeLine(intro);
-	writeList(items, bullets.ordered.default);
+	writeList(items, bullets.ordered.default, itemStyle);
 
 	const input = await questionTillValid(
 		usePrompt ? `${ query }(输入序号) ${ prompt }` : query,
